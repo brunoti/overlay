@@ -5,9 +5,10 @@
   "main": "overlay.js",
   "scripts": {
     "build": "npm run build-debug && npm run build-min",
-    "build-debug": "browserify src/overlay.js -s Overlay -t [ babelify --es2015 ] -o ./overlay.js",
+    "clean": "rm -f *.js",
+    "build-debug": "browserify src/overlay.js -s Overlay -t [ babelify --presets [ es2015 ] ] -o ./overlay.js",
     "build-min": "uglifyjs ./overlay.js --comments '/!/' -m screw_ie8=true -c screw_ie8=true,unused=false -o ./overlay.min.js",
-    "build-watch": "watchify src/overlay.js -s Overlay -t [ babelify --es2015 ] -o ./overlay.js -v"
+    "build-watch": "watchify src/overlay.js -s Overlay -t [ babelify --presets [ es2015 ] ] -o ./overlay.js -v"
   },
   "keywords": [
     "overlay",
@@ -27,5 +28,8 @@
     "browserify": "^13.0.0",
     "uglifyjs": "^2.4.10",
     "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "an-uuid": "^1.0.0"
   }
 }
