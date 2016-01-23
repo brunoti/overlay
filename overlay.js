@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Overlay = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.overlay = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var t =
   [ '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c',
   '0d', '0e', '0f', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
@@ -31,16 +31,16 @@ module.exports = function() {
 }
 
 },{}],2:[function(require,module,exports){
-'use strict';
-
 /**
  * Check if argument is a HTML element.
  *
  * @param {Object} value
  * @return {Boolean}
  */
-exports.node = function (value) {
-  return value !== undefined && value instanceof HTMLElement && value.nodeType === 1;
+exports.node = function(value) {
+    return value !== undefined
+        && value instanceof HTMLElement
+        && value.nodeType === 1;
 };
 
 /**
@@ -49,10 +49,13 @@ exports.node = function (value) {
  * @param {Object} value
  * @return {Boolean}
  */
-exports.nodeList = function (value) {
-  var type = Object.prototype.toString.call(value);
+exports.nodeList = function(value) {
+    var type = Object.prototype.toString.call(value);
 
-  return value !== undefined && (type === '[object NodeList]' || type === '[object HTMLCollection]') && 'length' in value && (value.length === 0 || exports.node(value[0]));
+    return value !== undefined
+        && (type === '[object NodeList]' || type === '[object HTMLCollection]')
+        && ('length' in value)
+        && (value.length === 0 || exports.node(value[0]));
 };
 
 /**
@@ -61,8 +64,9 @@ exports.nodeList = function (value) {
  * @param {Object} value
  * @return {Boolean}
  */
-exports.string = function (value) {
-  return typeof value === 'string' || value instanceof String;
+exports.string = function(value) {
+    return typeof value === 'string'
+        || value instanceof String;
 };
 
 /**
@@ -71,89 +75,61 @@ exports.string = function (value) {
  * @param {Object} value
  * @return {Boolean}
  */
-exports.function = function (value) {
-  var type = Object.prototype.toString.call(value);
+exports.function = function(value) {
+    var type = Object.prototype.toString.call(value);
 
-  return type === '[object Function]';
+    return type === '[object Function]';
 };
 
 },{}],3:[function(require,module,exports){
-'use strict';
+var uuid = require('an-uuid');
+var is = require('./helpers/is.js');
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+/**
+ * Makes an overlay on page to use whe tyou are loading.
+ *
+ * @param {Element|String} container - The container to put the overlay above.
+ * @param {Object} [options=defaultOptions] - The container to put the overlay above.
+ */
+function overlay(container, options) {
+  var container = container;
+  if (!is.node(container) && is.string(container)) {
+    this.container = document.querySelector(container);
+  } else {
+    throw new Error('You mas pass an valid HTML Element to Overlay Plugin');
+  }
+  Object.assign({
+    displayIcon: true,
+    color: 'text-dark',
+    icon: 'fa fa-refresh fa-spin fa-2x',
+    title: 'Carregando...',
+    desc: ''
+  }, options);
 
-var _anUuid = require('an-uuid');
+  return {
+    show: function() {
+      var id = uuid();
+      var icon = options.displayIcon ? `<span class="overlay-icon"><i class="${options.icon}"></i></span>` : '';
+      var overlay = `<div class="overlay-content">${icon}<p class="overlay-content-title">${this.options.title}</p>${this.options.desc}</div>`;
+      var element = document.createElement('div');
 
-var _anUuid2 = _interopRequireDefault(_anUuid);
+      return null;
+    },
+    hide: function() {
+      var element = document.getElementById(this.container.dataset.overlayId);
 
-var _is = require('./helpers/is.js');
+      if (element) {
+        element.parentNode.removeChild(element);
+        this.container.classList.remove('overlay-wrap');
+      }
 
-var _is2 = _interopRequireDefault(_is);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Overlay = function () {
-    function Overlay() {
-        _classCallCheck(this, Overlay);
+      return null;
     }
+  };
+}
 
-    _createClass(Overlay, [{
-        key: 'construct',
-        value: function construct(container, options) {
-            if (!_is2.default.node(container) && _is2.default.string(container)) {
-                this.container = document.querySelector(container);
-            } else {
-                throw new Error('You mas pass an valid HTML Element to Overlay Plugin');
-            }
-            Object.assign(this.options, options);
-        }
-    }, {
-        key: 'show',
-        value: function show() {
-            var id = (0, _anUuid2.default)();
-            var icon = this.options.displayIcon ? '<span class="overlay-icon"><i class="' + this.options.icon + '"></i></span>' : '';
-            var overlay = '<div class="overlay-content">' + icon + '<p class="overlay-content-title">' + this.options.title + '</p>' + this.options.desc + '</div>';
-            var element = document.createElement('div');
+module.exports = overlay;
 
-            element.id = id;
-            element.innerHTML = overlay;
-
-            this.container.classList.add('overlay-wrap');
-            this.container.dataset.overlayId = id;
-
-            this.container.appendChild(element);
-
-            return null;
-        }
-    }, {
-        key: 'hide',
-        value: function hide() {
-            var element = document.getElementById(this.container.dataset.overlayId);
-
-            if (element) {
-                element.parentNode.removeChild(element);
-                this.container.classList.remove('overlay-wrap');
-            }
-
-            return null;
-        }
-    }, {
-        key: 'options',
-        get: function get() {
-            return {
-                displayIcon: true,
-                color: 'text-dark',
-                icon: 'fa fa-refresh fa-spin fa-2x',
-                title: 'Carregando...',
-                desc: ''
-            };
-        }
-    }]);
-
-    return Overlay;
-}();
 
 },{"./helpers/is.js":2,"an-uuid":1}]},{},[3])(3)
 });
